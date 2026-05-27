@@ -1,0 +1,1308 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Italgas Communication Radar</title>
+  <style>
+    :root {
+      --ink: #102033;
+      --muted: #667587;
+      --faint: #e8eef4;
+      --panel: #ffffff;
+      --panel-soft: #f5f8fb;
+      --blue: #0c5799;
+      --blue-dark: #083b68;
+      --green: #00a878;
+      --green-soft: #dff6ee;
+      --amber: #f6a623;
+      --coral: #e45b5b;
+      --violet: #7467d6;
+      --line: #d7e1ea;
+      --shadow: 0 18px 48px rgba(16, 32, 51, .12);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(0, 168, 120, .11), transparent 32rem),
+        linear-gradient(180deg, #eef5f7 0%, #f7f9fb 48%, #eef3f6 100%);
+      letter-spacing: 0;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button:focus-visible {
+      outline: 3px solid rgba(246, 166, 35, .75);
+      outline-offset: 2px;
+    }
+
+    .app {
+      width: min(1220px, 100%);
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 232px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 18px;
+      min-height: calc(100vh - 36px);
+      background: #092947;
+      color: white;
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sidebar::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -90px auto;
+      width: 190px;
+      height: 190px;
+      background: rgba(0, 168, 120, .28);
+      transform: rotate(32deg);
+      border-radius: 44px;
+    }
+
+    .brand {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .brand-logo {
+      width: 184px;
+      height: auto;
+      display: block;
+    }
+
+    .brand-logo.full {
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .18));
+    }
+
+    .brand-subtitle {
+      margin-top: 6px;
+      color: #b7c9d9;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .nav {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      color: #d4e0ea;
+      background: rgba(255,255,255,.04);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .nav button[aria-selected="true"] {
+      color: white;
+      border-color: rgba(0, 168, 120, .72);
+      background: rgba(0, 168, 120, .18);
+    }
+
+    .nav svg,
+    .icon {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+    }
+
+    .side-note {
+      position: relative;
+      z-index: 1;
+      margin-top: 28px;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: #c6d7e4;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(0, 168, 120, .14);
+    }
+
+    .segmented {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.7);
+      border-radius: 8px;
+    }
+
+    .segmented button {
+      min-height: 34px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 6px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .segmented button.active {
+      color: white;
+      background: var(--blue);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, .85fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .brief {
+      min-height: 150px;
+      padding: 18px;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(9, 41, 71, .96), rgba(8, 59, 104, .92)),
+        linear-gradient(90deg, var(--blue-dark), var(--blue));
+      color: white;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brief::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 130px;
+      right: -70px;
+      top: -28px;
+      border: 1px solid rgba(255,255,255,.15);
+      transform: rotate(-16deg);
+      border-radius: 28px;
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .brief h1 {
+      position: relative;
+      z-index: 1;
+      margin: 8px 0 8px;
+      max-width: 560px;
+      font-size: clamp(22px, 3vw, 34px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .brief p {
+      position: relative;
+      z-index: 1;
+      max-width: 620px;
+      margin: 0;
+      color: #d7e5ef;
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .brief-actions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .btn.primary {
+      color: #06243b;
+      background: var(--green);
+    }
+
+    .btn.secondary {
+      color: white;
+      border-color: rgba(255,255,255,.25);
+      background: rgba(255,255,255,.08);
+    }
+
+    .today-card {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .today-card h2,
+    .panel h2,
+    .section-title h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .today-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .today-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-soft);
+    }
+
+    .priority {
+      width: 10px;
+      height: 38px;
+      border-radius: 99px;
+      background: var(--green);
+    }
+
+    .priority.warn {
+      background: var(--amber);
+    }
+
+    .priority.risk {
+      background: var(--coral);
+    }
+
+    .today-item strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .today-item span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: #007857;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .pill.warn {
+      color: #925900;
+      background: #fff0d6;
+    }
+
+    .pill.risk {
+      color: #b23535;
+      background: #ffe3e3;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .kpi {
+      min-height: 124px;
+      padding: 15px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 12px 30px rgba(16, 32, 51, .06);
+    }
+
+    .kpi .label {
+      min-height: 32px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .kpi .value {
+      margin-top: 12px;
+      font-size: 32px;
+      line-height: 1;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .kpi .delta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .delta.up {
+      color: #007857;
+    }
+
+    .delta.warn {
+      color: #a66b00;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      gap: 16px;
+    }
+
+    .panel {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.86);
+      box-shadow: 0 14px 36px rgba(16, 32, 51, .07);
+      min-width: 0;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .panel-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .bars {
+      display: grid;
+      gap: 14px;
+    }
+
+    .bar-row {
+      display: grid;
+      gap: 7px;
+    }
+
+    .bar-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .track {
+      height: 10px;
+      border-radius: 999px;
+      background: #e7edf3;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      width: var(--w);
+      border-radius: inherit;
+      background: var(--c);
+    }
+
+    .media-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .media-item {
+      display: grid;
+      grid-template-columns: 8px minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 13px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .media-line {
+      border-radius: 999px;
+      background: var(--green);
+    }
+
+    .media-line.warn {
+      background: var(--amber);
+    }
+
+    .media-line.risk {
+      background: var(--coral);
+    }
+
+    .media-item h3 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .media-item p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .score {
+      min-width: 52px;
+      text-align: right;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--blue);
+    }
+
+    .radar-wrap {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .radar {
+      width: 100%;
+      max-width: 230px;
+      aspect-ratio: 1;
+    }
+
+    .legend {
+      display: grid;
+      gap: 9px;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      background: var(--panel-soft);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend-row strong {
+      color: var(--ink);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 14px;
+    }
+
+    .tabs button {
+      flex: 0 0 auto;
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .tabs button.active {
+      border-color: var(--blue);
+      color: white;
+      background: var(--blue);
+    }
+
+    .table {
+      display: grid;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1.1fr .8fr .75fr .75fr;
+      gap: 12px;
+      align-items: center;
+      padding: 13px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .row:last-child {
+      border-bottom: 0;
+    }
+
+    .row.header {
+      color: var(--muted);
+      background: var(--panel-soft);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 11px;
+    }
+
+    .row strong {
+      display: block;
+      line-height: 1.3;
+    }
+
+    .row span:not(.pill) {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .action-card {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #ffc9c9;
+      background: linear-gradient(180deg, #fff7f7, #ffffff);
+    }
+
+    .action-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .action-card h3 {
+      margin: 0;
+      font-size: 19px;
+    }
+
+    .action-card p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .action-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .action-button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: white;
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .action-button.active {
+      border-color: rgba(0, 168, 120, .5);
+      background: var(--green-soft);
+    }
+
+    .insights {
+      display: grid;
+      gap: 12px;
+    }
+
+    .insight {
+      padding: 14px;
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      background: var(--panel-soft);
+    }
+
+    .insight.green {
+      border-color: var(--green);
+    }
+
+    .insight.amber {
+      border-color: var(--amber);
+    }
+
+    .insight strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .insight p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .mobile-header {
+      display: none;
+      margin-bottom: 14px;
+      padding: 14px;
+      border-radius: 8px;
+      background: #092947;
+      color: white;
+      box-shadow: var(--shadow);
+    }
+
+    .mobile-header .brand {
+      display: block;
+    }
+
+    .mobile-header .brand-logo {
+      width: 158px;
+    }
+
+    .mobile-nav {
+      display: none;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 0 0 12px;
+      margin-bottom: 2px;
+    }
+
+    .mobile-nav button {
+      flex: 0 0 auto;
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: white;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .mobile-nav button[aria-selected="true"] {
+      color: white;
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .mobile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .mobile-nav {
+        display: flex;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        padding: 10px;
+      }
+
+      .brief {
+        padding: 16px;
+      }
+
+      .brief h1 {
+        font-size: 24px;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .radar-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .row.header {
+        display: none;
+      }
+
+      .media-item {
+        grid-template-columns: 7px minmax(0, 1fr);
+      }
+
+      .score {
+        grid-column: 2;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="mobile-header">
+      <div class="brand" style="margin:0">
+        <img class="brand-logo full" src="italgas-logo.png" alt="Italgas">
+        <div class="brand-subtitle">Communication Radar</div>
+      </div>
+      <div class="status"><span class="live-dot"></span>Live</div>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Navigazione mobile">
+      <button type="button" data-view="overview" aria-selected="true">Overview</button>
+      <button type="button" data-view="media" aria-selected="false">Media</button>
+      <button type="button" data-view="esg" aria-selected="false">ESG</button>
+      <button type="button" data-view="stakeholder" aria-selected="false">Stakeholder</button>
+      <button type="button" data-view="actions" aria-selected="false">Azioni</button>
+    </nav>
+
+    <div class="shell">
+      <aside class="sidebar" aria-label="Navigazione principale">
+        <div class="brand">
+          <div>
+            <img class="brand-logo full" src="italgas-logo.png" alt="Italgas">
+            <div class="brand-subtitle">Communication Radar</div>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button type="button" data-view="overview" aria-selected="true">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 13h6V4H4v9Zm10 7h6V4h-6v16ZM4 20h6v-4H4v4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            Overview
+          </button>
+          <button type="button" data-view="media" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Media Coverage
+          </button>
+          <button type="button" data-view="esg" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21c4.2-2.4 7-6.2 7-11.3V5l-7-3-7 3v4.7C5 14.8 7.8 18.6 12 21Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            ESG Narrative
+          </button>
+          <button type="button" data-view="stakeholder" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8.5 2a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM2 21c.8-4.4 3-7 6-7s5.2 2.6 6 7m-1.5-4.3c1-.8 2.2-1.2 3.8-1.2 2.5 0 4.4 1.8 5.2 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Stakeholder
+          </button>
+          <button type="button" data-view="actions" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Action Center
+          </button>
+        </nav>
+
+        <div class="side-note">
+          Mockup dimostrativo con dati fittizi. Disegnato per validare interesse, KPI e logica operativa prima di un assessment sui flussi reali Italgas.
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <div class="status"><span class="live-dot"></span> Aggiornato oggi, 09:12 · rassegna e monitor web</div>
+          <div class="segmented" aria-label="Intervallo dati">
+            <button type="button">24h</button>
+            <button type="button" class="active">7g</button>
+            <button type="button">30g</button>
+          </div>
+        </div>
+
+        <section id="overview" class="view active">
+          <div class="hero">
+            <div class="brief">
+              <div class="eyebrow">Executive brief</div>
+              <h1>Reputazione stabile. Opportunita ESG in crescita.</h1>
+              <p>Italgas mantiene una copertura positiva su digitalizzazione reti e sostenibilita. Da monitorare il tema regolatorio, ripreso da testate economiche con tono neutro-critico e potenziale amplificazione istituzionale.</p>
+              <div class="brief-actions">
+                <button class="btn primary" type="button">Apri priorita</button>
+                <button class="btn secondary" type="button">Genera nota interna</button>
+              </div>
+            </div>
+
+            <aside class="today-card">
+              <div>
+                <div class="eyebrow">Oggi</div>
+                <h2>3 segnali da valutare</h2>
+              </div>
+              <div class="today-list">
+                <div class="today-item">
+                  <span class="priority risk"></span>
+                  <div><strong>Regolatorio ARERA</strong><span>2 testate economiche · rischio medio</span></div>
+                  <span class="pill risk">Azione</span>
+                </div>
+                <div class="today-item">
+                  <span class="priority"></span>
+                  <div><strong>Digitalizzazione reti</strong><span>messaggio chiave ripreso bene</span></div>
+                  <span class="pill">Opportunita</span>
+                </div>
+                <div class="today-item">
+                  <span class="priority warn"></span>
+                  <div><strong>Territori e concessioni</strong><span>copertura locale frammentata</span></div>
+                  <span class="pill warn">Monitor</span>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <div class="kpi-grid">
+            <article class="kpi">
+              <div class="label">Uscite monitorate</div>
+              <div class="value">42</div>
+              <div class="delta up">+8 vs settimana scorsa</div>
+            </article>
+            <article class="kpi">
+              <div class="label">Sentiment score</div>
+              <div class="value">68</div>
+              <div class="delta up">positivo stabile</div>
+            </article>
+            <article class="kpi">
+              <div class="label">Tier-1 coverage</div>
+              <div class="value">11</div>
+              <div class="delta">testate strategiche</div>
+            </article>
+            <article class="kpi">
+              <div class="label">Message pull-through</div>
+              <div class="value">74%</div>
+              <div class="delta up">messaggi ripresi</div>
+            </article>
+            <article class="kpi">
+              <div class="label">Issue risk index</div>
+              <div class="value">31</div>
+              <div class="delta warn">soglia attenzione</div>
+            </article>
+            <article class="kpi">
+              <div class="label">Azioni consigliate</div>
+              <div class="value">3</div>
+              <div class="delta">entro le 12:00</div>
+            </article>
+          </div>
+
+          <div class="grid">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Narrative attive</h2>
+                  <p>Forza e qualita delle narrative collegate a Italgas negli ultimi 7 giorni.</p>
+                </div>
+                <span class="pill">AI brief</span>
+              </div>
+              <div class="bars">
+                <div class="bar-row">
+                  <div class="bar-meta"><span>Digitalizzazione reti</span><strong>86</strong></div>
+                  <div class="track"><div class="fill" style="--w:86%;--c:var(--green)"></div></div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-meta"><span>Sostenibilita e ESG</span><strong>78</strong></div>
+                  <div class="track"><div class="fill" style="--w:78%;--c:var(--blue)"></div></div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-meta"><span>Regolatorio</span><strong>54</strong></div>
+                  <div class="track"><div class="fill" style="--w:54%;--c:var(--amber)"></div></div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-meta"><span>Territori e concessioni</span><strong>49</strong></div>
+                  <div class="track"><div class="fill" style="--w:49%;--c:var(--violet)"></div></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Copertura rilevante</h2>
+                  <p>Articoli e segnali con impatto potenziale sulle relazioni esterne.</p>
+                </div>
+              </div>
+              <div class="media-list">
+                <article class="media-item">
+                  <span class="media-line risk"></span>
+                  <div>
+                    <h3>Regolazione energia: attesa per i nuovi indirizzi</h3>
+                    <p>Il Sole 24 Ore · Economia · tono neutro/critico</p>
+                  </div>
+                  <div class="score">7.1</div>
+                </article>
+                <article class="media-item">
+                  <span class="media-line"></span>
+                  <div>
+                    <h3>Reti intelligenti, Italgas accelera sugli investimenti</h3>
+                    <p>Milano Finanza · Industria · tono positivo</p>
+                  </div>
+                  <div class="score">8.4</div>
+                </article>
+                <article class="media-item">
+                  <span class="media-line warn"></span>
+                  <div>
+                    <h3>Comuni e utilities: cresce il dibattito locale</h3>
+                    <p>Testate territoriali · policy · tono misto</p>
+                  </div>
+                  <div class="score">6.2</div>
+                </article>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="media" class="view">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="eyebrow">Media relations</div>
+                <h2>Coverage intelligence</h2>
+                <p>Una vista unica per distinguere volume, qualita della copertura e priorita di relazione con giornalisti e testate.</p>
+              </div>
+              <span class="pill">42 uscite</span>
+            </div>
+            <div class="tabs">
+              <button class="active" type="button">Tutte</button>
+              <button type="button">Tier-1</button>
+              <button type="button">Critiche</button>
+              <button type="button">Opportunita</button>
+            </div>
+            <div class="table">
+              <div class="row header"><div>Articolo</div><div>Testata</div><div>Messaggio</div><div>Priorita</div></div>
+              <div class="row">
+                <div><strong>Reti intelligenti, la strategia Italgas prende velocita</strong><span>Oggi · 08:10 · positivo</span></div>
+                <div>Milano Finanza</div>
+                <div><span class="pill">Ripreso</span></div>
+                <div>Opportunita ESG</div>
+              </div>
+              <div class="row">
+                <div><strong>Tariffe e investimenti, utilities sotto osservazione</strong><span>Oggi · 07:42 · neutro/critico</span></div>
+                <div>Il Sole 24 Ore</div>
+                <div><span class="pill warn">Parziale</span></div>
+                <div>Q&A interno</div>
+              </div>
+              <div class="row">
+                <div><strong>Transizione energetica, il ruolo delle infrastrutture</strong><span>Ieri · 18:20 · positivo</span></div>
+                <div>Corriere Economia</div>
+                <div><span class="pill">Ripreso</span></div>
+                <div>Amplificare</div>
+              </div>
+              <div class="row">
+                <div><strong>Concessioni locali, sindaci chiedono chiarezza</strong><span>Ieri · 12:05 · misto</span></div>
+                <div>Stampa locale</div>
+                <div><span class="pill risk">Debole</span></div>
+                <div>Monitor territorio</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="esg" class="view">
+          <div class="grid">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="eyebrow">ESG narrative</div>
+                  <h2>Leadership sostenibilita</h2>
+                  <p>Misura quanto Italgas guida la conversazione oltre la risposta regolatoria.</p>
+                </div>
+                <span class="pill">Score 78</span>
+              </div>
+              <div class="radar-wrap">
+                <svg class="radar" viewBox="0 0 240 240" aria-label="Radar narrative ESG">
+                  <polygon points="120,20 216,90 180,205 60,205 24,90" fill="none" stroke="#d7e1ea" stroke-width="2"/>
+                  <polygon points="120,48 190,99 164,183 76,183 50,99" fill="none" stroke="#d7e1ea" stroke-width="1"/>
+                  <polygon points="120,76 163,108 148,160 92,160 77,108" fill="none" stroke="#d7e1ea" stroke-width="1"/>
+                  <line x1="120" y1="120" x2="120" y2="20" stroke="#d7e1ea"/>
+                  <line x1="120" y1="120" x2="216" y2="90" stroke="#d7e1ea"/>
+                  <line x1="120" y1="120" x2="180" y2="205" stroke="#d7e1ea"/>
+                  <line x1="120" y1="120" x2="60" y2="205" stroke="#d7e1ea"/>
+                  <line x1="120" y1="120" x2="24" y2="90" stroke="#d7e1ea"/>
+                  <polygon points="120,38 183,100 157,171 80,178 55,100" fill="rgba(0,168,120,.22)" stroke="#00a878" stroke-width="3"/>
+                  <circle cx="120" cy="38" r="5" fill="#00a878"/>
+                  <circle cx="183" cy="100" r="5" fill="#f6a623"/>
+                  <circle cx="157" cy="171" r="5" fill="#7467d6"/>
+                  <circle cx="80" cy="178" r="5" fill="#0c5799"/>
+                  <circle cx="55" cy="100" r="5" fill="#e45b5b"/>
+                  <text x="120" y="14" text-anchor="middle" font-size="12" font-weight="800" fill="#102033">Sostenibilita</text>
+                  <text x="205" y="88" text-anchor="middle" font-size="12" font-weight="800" fill="#102033">Innovaz.</text>
+                  <text x="184" y="223" font-size="12" font-weight="800" fill="#102033">Territori</text>
+                  <text x="16" y="223" font-size="12" font-weight="800" fill="#102033">Regolatorio</text>
+                  <text x="35" y="88" text-anchor="middle" font-size="12" font-weight="800" fill="#102033">Community</text>
+                </svg>
+                <div class="legend">
+                  <div class="legend-row"><strong>Proactive coverage</strong><span>62%</span></div>
+                  <div class="legend-row"><strong>ESG message quality</strong><span>8.1 / 10</span></div>
+                  <div class="legend-row"><strong>Greenwashing risk</strong><span>basso</span></div>
+                  <div class="legend-row"><strong>Editorial opportunity</strong><span>alta</span></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Opportunita editoriali</h2>
+                  <p>Spunti proattivi da portare nel follow-up con Chiara Gans.</p>
+                </div>
+              </div>
+              <div class="insights">
+                <div class="insight green">
+                  <strong>Format: Le reti che anticipano il futuro</strong>
+                  <p>Raccontare la sostenibilita attraverso infrastrutture, digitalizzazione e benefici concreti per territori e cittadini.</p>
+                </div>
+                <div class="insight">
+                  <strong>Benchmark: da compliance a leadership</strong>
+                  <p>Separare i contenuti obbligati dal racconto proprietario: investimenti, innovazione, competenze e impatto.</p>
+                </div>
+                <div class="insight amber">
+                  <strong>Domanda aperta per workshop</strong>
+                  <p>Quali pubblici contano di piu: istituzioni, territori, investitori, media economici o nuove generazioni?</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="stakeholder" class="view">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="eyebrow">Relazioni esterne</div>
+                <h2>Stakeholder heatmap</h2>
+                <p>Priorita e sensibilita per pubblico, utile per connettere media monitoring, public affairs e comunicazione istituzionale.</p>
+              </div>
+            </div>
+            <div class="table">
+              <div class="row header"><div>Stakeholder</div><div>Attenzione</div><div>Tema dominante</div><div>Azione</div></div>
+              <div class="row">
+                <div><strong>Istituzioni e regolatori</strong><span>attenzione alta</span></div>
+                <div><span class="pill warn">74 / 100</span></div>
+                <div>Tariffe, investimenti, concessioni</div>
+                <div>Preparare Q&A</div>
+              </div>
+              <div class="row">
+                <div><strong>Media economici</strong><span>copertura qualificata</span></div>
+                <div><span class="pill">68 / 100</span></div>
+                <div>Reti, piano industriale, ESG</div>
+                <div>Pitch proattivo</div>
+              </div>
+              <div class="row">
+                <div><strong>Territori</strong><span>sentiment misto</span></div>
+                <div><span class="pill warn">61 / 100</span></div>
+                <div>Servizio, cantieri, comunita</div>
+                <div>Monitor locale</div>
+              </div>
+              <div class="row">
+                <div><strong>Investitori</strong><span>stabile</span></div>
+                <div><span class="pill">55 / 100</span></div>
+                <div>Capex, crescita, efficienza</div>
+                <div>Allineare messaggi</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="actions" class="view">
+          <div class="grid">
+            <section class="action-card">
+              <div class="action-top">
+                <div>
+                  <div class="eyebrow">Action center</div>
+                  <h3>Priorita: Regolatorio ARERA</h3>
+                  <p>Rischio medio di amplificazione su testate economiche. Suggerita preparazione Q&A e monitoraggio entro le 12:00.</p>
+                </div>
+                <span class="pill risk">Urgente</span>
+              </div>
+              <div class="bars">
+                <div class="bar-row">
+                  <div class="bar-meta"><span>Response priority score</span><strong>72 / 100</strong></div>
+                  <div class="track"><div class="fill" style="--w:72%;--c:var(--coral)"></div></div>
+                </div>
+              </div>
+              <div class="action-list">
+                <button class="action-button active" type="button">Genera nota Q&A <span>scelta</span></button>
+                <button class="action-button" type="button">Contatta giornalista <span>media team</span></button>
+                <button class="action-button" type="button">Escala a public affairs <span>se cresce</span></button>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Riepilogo decisionale</h2>
+                  <p>Informazioni pensate per chi ha poco tempo e deve decidere se intervenire.</p>
+                </div>
+              </div>
+              <div class="table">
+                <div class="row"><div><strong>Classificazione</strong></div><div>Monitor critico</div><div></div><div></div></div>
+                <div class="row"><div><strong>Asse dominante</strong></div><div>Regolatorio + media economici</div><div></div><div></div></div>
+                <div class="row"><div><strong>Owner suggerito</strong></div><div>Media relations + public affairs</div><div></div><div></div></div>
+                <div class="row"><div><strong>Next check</strong></div><div>Oggi · 12:00</div><div></div><div></div></div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const navButtons = document.querySelectorAll('[data-view]');
+    const views = document.querySelectorAll('.view');
+
+    navButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.view;
+        navButtons.forEach((item) => {
+          item.setAttribute('aria-selected', item.dataset.view === target ? 'true' : 'false');
+        });
+        views.forEach((view) => {
+          view.classList.toggle('active', view.id === target);
+        });
+      });
+    });
+
+    document.querySelectorAll('.segmented button').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.segmented button').forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.tabs button').forEach((button) => {
+      button.addEventListener('click', () => {
+        button.parentElement.querySelectorAll('button').forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.action-button').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.action-button').forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
